@@ -1,14 +1,20 @@
 import { useState } from "react";
 
 const Todo = () => {
-    const [todos, setTodos] = useState(['work', 'sleep', 'eat', 'pray']);
+    const [todos, setTodos] = useState([]);
     const [newTodo, setNewTodo] = useState('');
 
     const handleAddTodo = () => {
         if (newTodo.trim() !== '') {
-            setTodos([...todos, newTodo]);
+            setTodos([...todos, { text: newTodo, completed: false }]);
             setNewTodo('');
         }
+    };
+    
+    const toggleComplete = (index) => {
+        const updatedTodos = [...todos];
+        updatedTodos[index].completed = !updatedTodos[index].completed;
+        setTodos(updatedTodos);
     };
 
     return (
@@ -32,8 +38,15 @@ const Todo = () => {
             <ul className="space-y-2">
                 {todos.map((todo, index) => (
                     <li key={index} className="flex items-center">
-                        <input type="checkbox" className="mr-2 h-4 w-4" />
-                        <span>{todo}</span>
+                        <input 
+                            type="checkbox" 
+                            className="mr-2 h-4 w-4" 
+                            checked={todo.completed}
+                            onChange={() => toggleComplete(index)}
+                        />
+                        <span className={todo.completed ? 'line-through text-gray-500' : ''}>
+                            {todo.text}
+                        </span>
                     </li>
                 ))}
             </ul>
