@@ -1,12 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import TodoItem from './TodoItem';
 
 const Todo = () => {
-    const [todos, setTodos] = useState([]);
+    const [todos, setTodos] = useState(() => {
+        const savedTodos = localStorage.getItem('todos');
+        return savedTodos ? JSON.parse(savedTodos) : [];
+    });
     const [newTodo, setNewTodo] = useState('');
+
+    useEffect(() => {
+        localStorage.setItem('todos', JSON.stringify(todos));
+    }, [todos]);
 
     const handleAddTodo = () => {
         if (newTodo.trim() !== '') {
-            setTodos([...todos, { text: newTodo, completed: false }]);
+            const newTodos = [...todos, { text: newTodo, completed: false }];
+            setTodos(newTodos);
             setNewTodo('');
         }
     };
@@ -14,6 +23,11 @@ const Todo = () => {
     const toggleComplete = (index) => {
         const updatedTodos = [...todos];
         updatedTodos[index].completed = !updatedTodos[index].completed;
+        setTodos(updatedTodos);
+    };
+    
+    const deleteTodo = (index) => {
+        const updatedTodos = todos.filter((_, i) => i !== index);
         setTodos(updatedTodos);
     };
 
@@ -37,17 +51,13 @@ const Todo = () => {
             </div>
             <ul className="space-y-2">
                 {todos.map((todo, index) => (
-                    <li key={index} className="flex items-center">
-                        <input 
-                            type="checkbox" 
-                            className="mr-2 h-4 w-4" 
-                            checked={todo.completed}
-                            onChange={() => toggleComplete(index)}
-                        />
-                        <span className={todo.completed ? 'line-through text-gray-500' : ''}>
-                            {todo.text}
-                        </span>
-                    </li>
+                    <TodoItem 
+                        key={index}
+                        todo={todo}
+                        index={index}
+                        onToggle={toggleComplete}
+                        onDelete={deleteTodo}
+                    />
                 ))}
             </ul>
         </div>
